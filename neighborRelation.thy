@@ -5,7 +5,7 @@ begin
 text {* Idea of edge list representation taken from Nishihara and Minamide's paper:
       https://www.isa-afp.org/browser_info/current/AFP/Depth-First-Search/document.pdf *}
 
-typedecl node 
+type_synonym node = int 
 type_synonym graph = "(node * node) list"
 
 definition isReachable :: "[graph, node, node] ⇒ bool"
@@ -25,33 +25,37 @@ theorem neighbor_symmetric:
     by (metis assms isReachable_def)
 
 theorem neighbor_not_transitive:
-  shows "∃ (g :: graph) (a :: node) (b :: node) (c :: node). a ≠ b ∧ b ≠ c ∧ a ≠ c ⟶ isReachable g a b ∧ isReachable g b c ∧ ¬isReachable g a c"
+  shows "∃ (g :: graph) (a :: node) (b :: node) (c :: node). isReachable g a b ∧ isReachable g b c ∧ ¬isReachable g a c"
 proof -
-  fix a b c :: node
-  obtain g :: graph where G: "g = (a, b) # (b, a) # (b, c) # (c, b) # []" by auto
-  show ?thesis 
-  proof cases
-    assume unique: "a ≠ b ∧ b ≠ c ∧ a ≠ c"
-
-    have "(a, b) ∈ set g" and baInG: "(b, a) ∈ set g" using G by auto
-    hence ab: "isReachable g a b" using isReachable_def by metis
-
-    have "(b, c) ∈ set g" and cbInG: "(c, b) ∈ set g" using G by auto
-    hence bc: "isReachable g b c" using isReachable_def by metis
-
-    have ac: "¬ isReachable g a c" 
-    proof-
-      from G have "g = (a, b) # (b, a) # (b, c) # (c, b) # []" by auto
-      then have "set g = {(a, b), (b, a), (b, c), (c, b)}" by auto
-      then have "(a, c) ∉ set g" using unique by auto
-      thus ?thesis using isReachable_def unique by auto
-    qed
-
-    show ?thesis using ab bc ac by auto
-  next
-    assume "~ (a ≠ b ∧ b ≠ c ∧ a ≠ c)"
-    show ?thesis by auto
+  obtain a b c :: node where unique: "a ≠ b ∧ b ≠ c ∧ a ≠ c"
+  proof -
+    assume a1: "⋀a b c. (a::int) ≠ b ∧ b ≠ c ∧ a ≠ c ⟹ thesis"
+    have f2: "(0::int) ≠ 2"
+      by auto
+    have f3: "(1::int) ≠ 2"
+      by auto
+    have "(0::int) ≠ 1"
+      by auto
+    then show ?thesis
+      using f3 f2 a1 by blast
   qed
+  obtain g :: graph where G: "g = (a, b) # (b, a) # (b, c) # (c, b) # []" by auto
+  
+  have "(a, b) ∈ set g" and baInG: "(b, a) ∈ set g" using G by auto
+  hence ab: "isReachable g a b" using isReachable_def by metis
+
+  have "(b, c) ∈ set g" and cbInG: "(c, b) ∈ set g" using G by auto
+  hence bc: "isReachable g b c" using isReachable_def by metis
+
+  have ac: "¬ isReachable g a c" 
+  proof-
+    from G have "g = (a, b) # (b, a) # (b, c) # (c, b) # []" by auto
+    then have "set g = {(a, b), (b, a), (b, c), (c, b)}" by auto
+    then have "(a, c) ∉ set g" using unique by auto
+    thus ?thesis using isReachable_def unique by auto
+  qed
+
+  show ?thesis using ab ac bc by auto
 qed
 
 end
