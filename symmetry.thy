@@ -1,4 +1,4 @@
-theory palindrome
+theory symmetry
   imports Main
 begin
 
@@ -43,7 +43,7 @@ next
   thus ?thesis using local.Nil by simp
 qed
 
-theorem palindrome_is_symmetric:
+theorem recurrence_is_symmetric:
   fixes a b
   assumes "p = connect a b"
   shows "reversed (right p) = left p"
